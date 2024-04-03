@@ -129,7 +129,6 @@
                 <version>1.9.20</version>
                 <executions>
                     <execution>
-                        <phase>pre-site</phase>
                         <id>attach-javadocs</id>
                         <goals>
                             <goal>dokka</goal>

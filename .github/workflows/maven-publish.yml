@@ -37,7 +37,7 @@ jobs:
           mvn versions:commit
 
       - name: Publish
-        run: mvn clean deploy -P release -DskipTests -Dgpg.passphrase=${GPG_PASSPHRASE} -s $GITHUB_WORKSPACE/.m2/settings.xml
+        run: mvn clean dokka:javadocJar deploy -P release -DskipTests -Dgpg.passphrase=${GPG_PASSPHRASE} -s $GITHUB_WORKSPACE/.m2/settings.xml
 
       - name: Commit & Push changes
         uses: actions-js/push@master
