@@ -14,7 +14,7 @@ data class Matching<T> internal constructor(val description: String = "", val pr
         if (!predicate.test(value)) {
             throw AssertionError(takeIf { description.isNotEmpty() }?.let {
                 "Matching < ${TextUtils.yellow(description)} > failed "
-            } ?: "Predicate failed" )
+            } ?: "Predicate failed")
         }
     }
 }
@@ -31,9 +31,10 @@ fun <T> predicate(predicate: Predicate<T>): Matching<T> = Matching(predicate = p
  * @param description The description of the predicate.
  * @param predicate The matching predicate.
  */
-fun <T> matching(description: String , predicate: Predicate<T>):Matching<T> = Matching(description, predicate)
+fun <T> matching(description: String, predicate: Predicate<T>): Matching<T> = Matching(description, predicate)
 
 /**
  * Creates an array of Matching objects from a list of pairs.
  */
-fun <T> matchings(vararg pairs: Pair<String, (T) -> Boolean>): Array<Matching<T>> = pairs.map { matching(it.first, it.second) }.toTypedArray()
+fun <T> matchings(vararg pairs: Pair<String, (T) -> Boolean>): Array<Matching<T>> =
+    pairs.map { matching(it.first, it.second) }.toTypedArray()

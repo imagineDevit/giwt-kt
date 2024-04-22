@@ -12,7 +12,6 @@ import io.github.imagineDevit.giwt.core.ATestCaseResult
 data class ShouldMatch<T>(val result: ATestCaseResult.ResultValue.Ok<T>) {
 
 
-
     /**
      * Asserts that the value matches a given predicate
      *

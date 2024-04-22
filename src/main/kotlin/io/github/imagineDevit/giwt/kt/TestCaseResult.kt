@@ -11,7 +11,7 @@ import io.github.imagineDevit.giwt.kt.assertions.*
 open class TestCaseResult<T> : Assertable<T>, ATestCaseResult<T> {
 
     override var sf: ShouldFail? = null
-    override var sb: ShouldBe<T>?= null
+    override var sb: ShouldBe<T>? = null
     override var sh: ShouldHave<T>? = null
     override var sm: ShouldMatch<T>? = null
 

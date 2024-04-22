@@ -7,7 +7,7 @@ import io.github.imagineDevit.giwt.core.ATestCaseResult
  * Assertable interface that provides a set of methods to assert the value of a Result.
  * @param T The type of the value contained in the Result.
  */
-interface Assertable<T>  {
+interface Assertable<T> {
 
     var sf: ShouldFail?
     var sb: ShouldBe<T>?

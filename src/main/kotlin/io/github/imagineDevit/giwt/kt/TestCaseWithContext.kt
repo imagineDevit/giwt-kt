@@ -37,12 +37,12 @@ class TestCaseWithContext<T : Any?, R : Any?> internal constructor(
     /**
      * The list of given statement functions.
      */
-    private val givenFns: MutableList<GCtxFn<T,R>> = mutableListOf()
+    private val givenFns: MutableList<GCtxFn<T, R>> = mutableListOf()
 
     /**
      * The when statement function.
      */
-    private lateinit var whenFn: WCtxFn<T,R>
+    private lateinit var whenFn: WCtxFn<T, R>
 
     /**
      * The list of then statement functions.
@@ -122,7 +122,7 @@ class TestCaseWithContext<T : Any?, R : Any?> internal constructor(
          * @param message The message of the given statement.
          * @param fn The given function.
          */
-        fun and(message: String, fn: GCtxFn<T,R>): GivenCtxStmt<T, R> {
+        fun and(message: String, fn: GCtxFn<T, R>): GivenCtxStmt<T, R> {
             this.testCase.addAndGivenMsg(message)
             this.testCase.givenFns.add(fn)
             return this
