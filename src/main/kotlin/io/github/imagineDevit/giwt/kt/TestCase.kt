@@ -9,6 +9,9 @@ import io.github.imagineDevit.giwt.kt.statements.functions.GivenFn
 import io.github.imagineDevit.giwt.kt.statements.functions.ThenFn
 import io.github.imagineDevit.giwt.kt.statements.functions.WhenFns
 
+/**
+ * The Kotlin implementation of the Giwt test case.
+ */
 open class TestCase<T : Any?, R : Any?> internal constructor(
     name: String,
     report: TestReport?,
@@ -16,14 +19,30 @@ open class TestCase<T : Any?, R : Any?> internal constructor(
 ) :
     ATestCase<T, R, TestCaseState<T>, TestCaseResult<R>>(name, report, parameters) {
 
+    /**
+     * The given statement.
+     */
     inner class GivenStmt<T : Any?, R : Any?>(private val testCase: TestCase<T, R>) {
 
+        /**
+         * Adds a given statement function to the existing given statement.
+         * @param message The message of the given statement.
+         * @param fn The given statement function.
+         * @return The current given statement.
+         */
         fun and(message: String, fn: AndGivenFn<T>): GivenStmt<T, R> {
             this.testCase.addAndGivenMsg(message)
             this.testCase.andGivenFns.add(fn)
             return this
         }
 
+        /**
+         * Create a when statement from the current given statement.
+         * Adds the function associated with the when statement to the test case.
+         * @param message The message of the when statement.
+         * @param whenFn The when statement function.
+         * @return The created when statement.
+         */
         fun `when`(message: String, whenFn: WhenFns.WhenFn<T, R>): WhenStmt<T, R> {
             this.testCase.addWhenMsg(message)
             this.testCase.whenFn = whenFn
@@ -32,8 +51,18 @@ open class TestCase<T : Any?, R : Any?> internal constructor(
 
     }
 
+    /**
+     * The when statement.
+     */
     inner class WhenStmt<T : Any?, R : Any?>(private val testCase: TestCase<T, R>) {
 
+        /**
+         * Create a then statement from the current when statement.
+         * Adds the function associated with the then statement to the test case.
+         * @param message The message of the then statement.
+         * @param thenFn The then statement function.
+         * @return The created then statement.
+         */
         fun then(message: String, thenFn: ThenFn<R>): ThenStmt<T, R> {
             this.testCase.addThenMsg(message)
             this.testCase.thenFns.add(thenFn)
@@ -42,8 +71,16 @@ open class TestCase<T : Any?, R : Any?> internal constructor(
 
     }
 
+    /**
+     * The then statement.
+     */
     inner class ThenStmt<T : Any?, R : Any?>(private val testCase: TestCase<T, R>) {
 
+        /**
+         * Adds a then statement function to the existing then statement.
+         * @param message The message of the then statement.
+         * @param thenFn The then statement function.
+         */
         fun and(message: String, thenFn: ThenFn<R>): ThenStmt<T, R> {
             this.testCase.addAndThenMsg(message)
             this.testCase.thenFns.add(thenFn)
@@ -56,31 +93,81 @@ open class TestCase<T : Any?, R : Any?> internal constructor(
         this.result = TestCaseResult.empty()
     }
 
+    /**
+     * The given function.
+     * This function provide the initial state of the test case.
+     */
     private var givenFn: GivenFn<T>? = null
+
+    /**
+     * The list of and given functions.
+     * These functions are used to mutate the state of the test case
+     * or to add additional given statements such as defining mocks or stubs behaviors.
+     */
     private val andGivenFns: MutableList<AndGivenFn<T>> = mutableListOf()
-    private var whenFn: WhenFns? = null
+
+    /**
+     * The when function.
+     * This function is used to apply the action that is tested.
+     * It can be a function that takes the state as a parameter and returns the result
+     * or a supplier that returns the result.
+     * @see WhenFns
+     */
+    private lateinit var whenFn: WhenFns
+
+    /**
+     * The list of then functions.
+     * These functions are used to assert the result of the test case.
+     * @see ThenFn
+     */
     private val thenFns: MutableList<ThenFn<R>> = mutableListOf()
 
+    /**
+     * The test case with context
+     * @see TestCaseWithContext
+     */
     private var ctxCase: TestCaseWithContext<T, R>? = null
 
+    /**
+     * Create the given statement for the test case.
+     * Adds the given function to the test case.
+     * @param message The message of the given statement.
+     * @param givenFn The given function.
+     */
     fun given(message: String, givenFn: GivenFn<T>): GivenStmt<T, R> = runIfOpen {
         this.addGivenMsg(message)
         this.givenFn = givenFn
         GivenStmt(this)
     }
 
-    fun given(message: String, t: T): GivenStmt<T, R> = runIfOpen {
+    /**
+     * Create the given statement for the test case.
+     * Adds the given function to the test case.
+     * @param message The message of the given statement.
+     * @param value The provided state value
+     */
+    fun given(message: String, value: T): GivenStmt<T, R> = runIfOpen {
         this.addGivenMsg(message)
-        this.state = TestCaseState.of(t)
+        this.state = TestCaseState.of(value)
         GivenStmt(this)
     }
 
+    /**
+     * Create the when statement for the test case.
+     * Adds the when function to the test case.
+     * @param message The message of the when statement.
+     * @param whenFn The when function that supplies the test case result.
+     */
     fun `when`(message: String, whenFn: WhenFns.WhenSFn<R>): WhenStmt<T, R> = runIfOpen {
         this.addWhenMsg(message)
         this.whenFn = whenFn
         WhenStmt(this)
     }
 
+    /**
+     * Create a [TestCaseWithContext] from the current test case.
+     * @return The test case with context.
+     */
     fun withContext(): TestCaseWithContext<T, R> {
         this.ctxCase = TestCaseWithContext(this.name, this.report, this.parameters)
         return this.ctxCase!!
@@ -94,31 +181,30 @@ open class TestCase<T : Any?, R : Any?> internal constructor(
         print(Utils.reportTestCase(name, givenMsgs, whenMsgs, thenMsgs, parameters))
 
         this.givenFn?.also {
-            this.state = TestCaseState.of(it.apply())
+            this.state = TestCaseState.of(it())
         }
 
         this.andGivenFns.forEach {
-            this.state = this.state.map { s -> it.apply(s) }
+            this.state = this.state.map { s -> it(s) }
         }
 
-        this.whenFn?.also {
-            try {
-                when (it) {
-                    is WhenFns.WhenFn<*, *> -> this.result = this.state.mapToResult { s ->
-                        (it as WhenFns.WhenFn<T, R>).apply(s)
-                    }
-
-                    is WhenFns.WhenSFn<*> -> this.result = this.state.mapToResult { _ ->
-                        (it as WhenFns.WhenSFn<R>).apply()
-                    }
+        try {
+            when (this.whenFn) {
+                is WhenFns.WhenFn<*, *> -> this.result = this.state.mapToResult { s ->
+                    (this.whenFn as WhenFns.WhenFn<T, R>).apply(s)
                 }
-            } catch (e: Exception) {
-                this.result = TestCaseResult.ofErr(e)
+
+                is WhenFns.WhenSFn<*> -> this.result = this.state.mapToResult { _ ->
+                    (this.whenFn as WhenFns.WhenSFn<R>).get()
+                }
             }
+        } catch (e: Exception) {
+            this.result = TestCaseResult.ofErr(e)
         }
 
-        this.thenFns.forEach {
-            it.apply(this.result)
+
+        this.thenFns.forEach { fn ->
+            fn.invoke(this.result)
         }
     }
 }

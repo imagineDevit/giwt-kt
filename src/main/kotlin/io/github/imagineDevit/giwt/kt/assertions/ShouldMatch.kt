@@ -1,26 +1,32 @@
 package io.github.imagineDevit.giwt.kt.assertions
 
 import io.github.imagineDevit.giwt.core.ATestCaseResult
-import io.github.imagineDevit.giwt.core.utils.TextUtils
-import java.util.function.Predicate
 
+/**
+ * ShouldMatch class that provides a set of methods to assert the value of a Result.Ok.
+ *
+ * @param T The type of the value contained in the Result.
+ * @see ATestCaseResult.ResultValue
+ */
 @Suppress("unused")
 data class ShouldMatch<T>(val result: ATestCaseResult.ResultValue.Ok<T>) {
-    data class Matching<T>(val description: String, val predicate: Predicate<T>) {
-        fun shouldTest(value: T) {
-            if (!predicate.test(value)) {
-                throw AssertionError("Matching < ${TextUtils.yellow(description)} > failed ")
-            }
-        }
-    }
 
-    fun <T> matching(description: String, predicate: Predicate<T>): Matching<T> = Matching(description, predicate)
 
+    /**
+     * Asserts that the value matches a given predicate
+     *
+     * @param matching The predicate to test the value.
+     * @throws AssertionError If the value does not match the predicate.
+     */
     infix fun one(matching: Matching<T>): ShouldMatch<T> = matching.shouldTest(result.value).let { this }
 
-    fun one(description: String, predicate: Predicate<T>): ShouldMatch<T> = one(matching(description, predicate))
-
-    fun all(vararg matchings: Matching<T>): ShouldMatch<T> =
+    /**
+     * Asserts that the value matches all given predicates
+     *
+     * @param matchings The predicates to test the value.
+     * @throws AssertionError If the value does not match any of the predicates.
+     */
+    infix fun all(matchings: Array<Matching<T>>): ShouldMatch<T> =
         matchings
             .filter { !it.predicate.test(result.value) }
             .map { "👉 ${it.description}" }
@@ -32,7 +38,13 @@ data class ShouldMatch<T>(val result: ATestCaseResult.ResultValue.Ok<T>) {
                 this
             }
 
-    fun none(vararg matchings: Matching<T>): ShouldMatch<T> =
+    /**
+     * Asserts that the value does not match any of the given predicates
+     *
+     * @param matchings The predicates to test the value.
+     * @throws AssertionError If the value matches any of the predicates.
+     */
+    infix fun none(matchings: Array<Matching<T>>): ShouldMatch<T> =
         matchings
             .filter { it.predicate.test(result.value) }
             .map { "👉 ${it.description}" }
@@ -51,3 +63,4 @@ data class ShouldMatch<T>(val result: ATestCaseResult.ResultValue.Ok<T>) {
             }
 
 }
+
