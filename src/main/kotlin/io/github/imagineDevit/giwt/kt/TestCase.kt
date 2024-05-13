@@ -185,7 +185,7 @@ open class TestCase<T : Any?, R : Any?> internal constructor(
         }
 
         this.andGivenFns.forEach {
-            this.state = this.state.map { s -> it(s) }
+            this.state.apply(it)
         }
 
         try {

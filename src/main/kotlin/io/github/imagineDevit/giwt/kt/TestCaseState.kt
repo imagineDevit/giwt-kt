@@ -34,4 +34,12 @@ open class TestCaseState<T> protected constructor(value: T?) : ATestCaseState<T>
      */
     internal fun <R> mapToResult(mapper: (T) -> R): TestCaseResult<R> = TestCaseResult.of(mapper(value))
 
+    /**
+     * Apply a function to the value of the test case state.
+     * @param fn The function to apply.
+     */
+    internal fun apply(fn: (T) -> Unit) {
+        fn(value)
+    }
+
 }

@@ -25,6 +25,7 @@ data class ShouldHave<T>(val result: ATestCaseResult.ResultValue.Ok<T>) {
         val length = result.value.let {
             when (it) {
                 is Collection<*> -> it.size
+                is Array<*> -> it.size
                 is Map<*, *> -> it.size
                 is String -> it.length
                 else -> throw IllegalStateException("Result value has no size")
@@ -56,6 +57,11 @@ data class ShouldHave<T>(val result: ATestCaseResult.ResultValue.Ok<T>) {
                     }
                 }
 
+                is Array<*> -> {
+                    if (!it.contains(element)) {
+                        throw AssertionError("Expected result to contain <$element> but it does not")
+                    }
+                }
                 else -> throw IllegalStateException("Result value is not a collection")
             }
         }
