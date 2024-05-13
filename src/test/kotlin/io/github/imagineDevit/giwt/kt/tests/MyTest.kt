@@ -4,7 +4,6 @@ import io.github.imagineDevit.giwt.core.TestParameters
 import io.github.imagineDevit.giwt.core.TestParameters.Parameter
 import io.github.imagineDevit.giwt.core.annotations.*
 import io.github.imagineDevit.giwt.kt.TestCase
-import io.github.imagineDevit.giwt.kt.TestCaseWithContext
 import io.github.imagineDevit.giwt.kt.assertions.predicate
 
 @ExtendWith(MyTestExtension::class)
@@ -17,7 +16,7 @@ class MyTest {
         testCase
             .given("state is 1", 1)
             .and("state is multiplied by 2") { it * 2 }
-            .`when`("1 is added to the state") { it + 1 }
+            .`when`("1 is added to the state") { (it * 2) + 1 }
             .then("result should be not null") { shouldBe.notNull }
             .and("result should be 3") { shouldBe equalTo 3 }
     }
@@ -30,7 +29,7 @@ class MyTest {
         testCase
             .given("state is 1") { 1 }
             .and("state is multiplied by 2") { it * 2 }
-            .`when`("$number is added to the state") { it + number }
+            .`when`("$number is added to the state") { (it * 2) + number }
             .then("result should be not null") { shouldBe.notNull }
             .and("result should be $expected") { shouldBe equalTo expected }
     }
@@ -39,6 +38,7 @@ class MyTest {
     @Skipped(reason = "this test is skipped")
     fun test3(testCase: TestCase<Unit, Int?>) {
         testCase
+            .given("nothing"){}
             .`when`("called method return 1") { 1 }
             .then("the result should be not null") { result {  shouldBe.notNull } }
             .and("the result should be equal to 1") { result { shouldBe equalTo 1 } }
