@@ -8,6 +8,7 @@ import io.github.imagineDevit.giwt.kt.statements.functions.AndGivenFn
 import io.github.imagineDevit.giwt.kt.statements.functions.GivenFn
 import io.github.imagineDevit.giwt.kt.statements.functions.ThenFn
 import io.github.imagineDevit.giwt.kt.statements.functions.WhenFns
+import kotlinx.coroutines.runBlocking
 
 /**
  * The Kotlin implementation of the Giwt test case.
@@ -190,12 +191,12 @@ open class TestCase<T : Any?, R : Any?> internal constructor(
 
         try {
             when (this.whenFn) {
-                is WhenFns.WhenFn<*, *> -> this.result = this.state.mapToResult { s ->
-                    (this.whenFn as WhenFns.WhenFn<T, R>).apply(s)
+                is WhenFns.WhenFn<*, *> -> this.result = this@TestCase.state.mapToResult { s ->
+                    runBlocking { (this@TestCase.whenFn as WhenFns.WhenFn<T, R>).invoke(s) }
                 }
 
                 is WhenFns.WhenSFn<*> -> this.result = this.state.mapToResult { _ ->
-                    (this.whenFn as WhenFns.WhenSFn<R>).get()
+                    runBlocking { (this@TestCase.whenFn as WhenFns.WhenSFn<R>).invoke() }
                 }
             }
         } catch (e: Exception) {
