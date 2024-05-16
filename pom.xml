@@ -6,7 +6,7 @@
 
     <groupId>io.github.imagineDevit</groupId>
     <artifactId>giwt-kt</artifactId>
-    <version>0.0.8</version>
+    <version>0.0.9-SNAPSHOT</version>
 
     <description>
         A JUnit based library that allow developers to write unit test on GIVEN-WHEN-THEN format
@@ -137,6 +137,7 @@
                 </executions>
             </plugin>
 
+
             <!-- NEXUS STAGING -->
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
@@ -176,7 +177,7 @@
         <dependency>
             <groupId>io.github.imagineDevit</groupId>
             <artifactId>giwt-core</artifactId>
-            <version>0.0.3</version>
+            <version>0.0.5</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.junit.jupiter</groupId>
@@ -194,6 +195,17 @@
             <artifactId>kotlin-stdlib</artifactId>
             <version>1.9.22</version>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-core</artifactId>
+            <version>1.6.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup</groupId>
+            <artifactId>kotlinpoet-jvm</artifactId>
+            <version>1.16.0</version>
+        </dependency>
+
     </dependencies>
 
     <profiles>
@@ -214,19 +226,7 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <!--<plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.4.1</version>
-                        <executions>
-                            <execution>
-                                <id>attach-javadoc</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>-->
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>

@@ -7,6 +7,7 @@ import io.github.imagineDevit.giwt.core.utils.Utils
 import io.github.imagineDevit.giwt.kt.statements.functions.GCtxFn
 import io.github.imagineDevit.giwt.kt.statements.functions.TCtxFn
 import io.github.imagineDevit.giwt.kt.statements.functions.WCtxFn
+import kotlinx.coroutines.runBlocking
 
 /**
  * Test case with context class.
@@ -60,7 +61,7 @@ class TestCaseWithContext<T : Any?, R : Any?> internal constructor(
         this.wCtx = this.gCtx.toWCtx()
 
         try {
-            this.whenFn(this.wCtx)
+            runBlocking { this@TestCaseWithContext.whenFn(this@TestCaseWithContext.wCtx) }
         } catch (e: Exception) {
             this.wCtx.setResult(TestCaseCtxResult.ofErr(e))
         }
