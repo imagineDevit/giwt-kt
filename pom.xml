@@ -177,7 +177,7 @@
         <dependency>
             <groupId>io.github.imagineDevit</groupId>
             <artifactId>giwt-core</artifactId>
-            <version>0.0.3</version>
+            <version>0.0.5</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.junit.jupiter</groupId>
@@ -199,6 +199,11 @@
             <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-coroutines-core</artifactId>
             <version>1.6.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup</groupId>
+            <artifactId>kotlinpoet-jvm</artifactId>
+            <version>1.16.0</version>
         </dependency>
 
     </dependencies>
