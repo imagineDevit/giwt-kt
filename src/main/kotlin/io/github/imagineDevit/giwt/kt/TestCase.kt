@@ -186,7 +186,7 @@ open class TestCase<T : Any?, R : Any?> internal constructor(
         }
 
         this.andGivenFns.forEach {
-            this.state.apply(it)
+            this.state.consumeValue(it)
         }
 
         try {

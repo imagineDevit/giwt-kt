@@ -38,8 +38,8 @@ open class TestCaseState<T> protected constructor(value: T?) : ATestCaseState<T>
      * Apply a function to the value of the test case state.
      * @param fn The function to apply.
      */
-    internal fun apply(fn: (T) -> Unit) {
-        fn(value)
+    internal fun consumeValue(fn: (T) -> Unit) {
+        super.consumeValue(fn)
     }
 
 }
