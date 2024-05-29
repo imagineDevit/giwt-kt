@@ -2,10 +2,13 @@ package io.github.imagineDevit.giwt.kt.tests
 
 import io.github.imagineDevit.giwt.core.TestParameters
 import io.github.imagineDevit.giwt.core.TestParameters.Parameter
+
 import io.github.imagineDevit.giwt.core.annotations.*
 import io.github.imagineDevit.giwt.kt.TestCase
-import io.github.imagineDevit.giwt.kt.assertions.predicate
+import io.github.imagineDevit.giwt.kt.expectations.*
 import kotlinx.coroutines.coroutineScope
+import java.lang.annotation.Inherited
+
 
 @ExtendWith(MyTestExtension::class)
 @ConfigureWith(MyTestConfiguration::class)
@@ -20,8 +23,10 @@ class MyTest {
             .given("state is 1", 1)
             .and("state is multiplied by 2") { it * 2 }
             .`when`("1 is added to the state") { byTwoPlusOne(it) }
-            .then("result should be not null") { shouldBe.notNull }
-            .and("result should be 3") { shouldBe equalTo 3 }
+            .then("result should be not null") {
+                result shouldBe notNull() and equalTo(3)
+            }
+
     }
 
     @ParameterizedTest(
@@ -33,8 +38,10 @@ class MyTest {
             .given("state is 1") { 1 }
             .and("state is multiplied by 2") { it * 2 }
             .`when`("$number is added to the state") { byTwoPlus(it, number) }
-            .then("result should be not null") { shouldBe.notNull }
-            .and("result should be $expected") { shouldBe equalTo expected }
+            .then("result should be not null") {
+                result shouldBe notNull() and equalTo(expected)
+            }
+
     }
 
     @Test
@@ -43,8 +50,9 @@ class MyTest {
         testCase
             .given("nothing") {}
             .`when`("called method return 1") { 1 }
-            .then("the result should be not null") { result { shouldBe.notNull } }
-            .and("the result should be equal to 1") { result { shouldBe equalTo 1 } }
+            .then("the result should be not null") {
+                result shouldBe notNull() and equalTo(1)
+            }
     }
 
     @Test("An illegalState exception should be thrown")
@@ -54,8 +62,7 @@ class MyTest {
                 error("Oups")
             }
             .then("the exception is not null") {
-                shouldFail withErrorOfType IllegalStateException::class
-                shouldFail withMessage "Oups"
+                result shouldFail withType(IllegalStateException::class) and withMessage("Oups")
             }
     }
 
@@ -63,13 +70,14 @@ class MyTest {
     fun test5(testCase: TestCase<Int, Int>) {
         testCase.withContext()
             .given("the state is set to 1") { setState(1) }
-            .and("the state is multiplied by 2") { mapState { one -> one * 2 } }
+            .and("the state is multiplied by 2") {
+                applyOnState {
+                    setVar("one", it)
+                }
+            }
             .`when`("result is set to state + 1") { mapToResult { one -> one + 1 } }
             .then("the result should be 3") {
-                result {
-                    shouldBe.notNull
-                    shouldBe equalTo 3
-                }
+                result shouldBe notNull() and  equalTo(2)
             }
     }
 
@@ -81,12 +89,10 @@ class MyTest {
                 applyOnState { list -> list.add("element") }
                 setStateAsResult()
             }
-            .then("the result should be not null") { result { shouldBe.notNull } }
-            .and("the result should have a size equal to 1") { result { shouldHave size 1 } }
+            .then("the result should be not null") { result shouldBe notNull() }
+            .and("the result should have a size equal to 1") { result  shouldHave size(1)  }
             .and("the result should contain an item equal to 'element'") {
-                result {
-                    shouldMatch one predicate { it.contains("element") }
-                }
+                result shouldMatch one( matching("element") { it.contains( "element") })
             }
     }
 
@@ -96,10 +102,7 @@ class MyTest {
             .withContext()
             .`when`("called method throw an exception with oups message") { error("Oups") }
             .then("the exception is not null") {
-                result {
-                    shouldFail withErrorOfType IllegalStateException::class
-                    shouldFail withMessage "Oups"
-                }
+                result shouldFail withType(IllegalStateException::class) and withMessage("Oups")
             }
     }
 

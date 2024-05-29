@@ -2,7 +2,7 @@ package io.github.imagineDevit.giwt.kt.processors
 
 
 import com.squareup.kotlinpoet.*
-import io.github.imagineDevit.giwt.core.annotations.ParameterRecordName
+import io.github.imagineDevit.giwt.core.annotations.ParametersDataName
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.*
@@ -19,14 +19,14 @@ private const val TESTER = "TestProxy"
 
 
 /**
- * Processor to generate a proxy class for a given class annotated with [io.github.imagineDevit.giwt.core.annotations.GiwtProxyable]
- * @see io.github.imagineDevit.giwt.core.annotations.GiwtProxyable
+ * Processor to generate a proxy class for a given class annotated with [io.github.imagineDevit.giwt.core.annotations.TestProxy]
+ * @see io.github.imagineDevit.giwt.core.annotations.TestProxy
  * @author Henri Joel SEDJAME
  */
 
-@SupportedAnnotationTypes("io.github.imagineDevit.giwt.core.annotations.GiwtProxyable")
+@SupportedAnnotationTypes("io.github.imagineDevit.giwt.core.annotations.TestProxy")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-class GiwtKtProxyableProcessor : AbstractProcessor() {
+class TestProxyProcessor : AbstractProcessor() {
 
     private lateinit var messager: Messager
     private lateinit var elementUtils: Elements
@@ -128,7 +128,7 @@ class GiwtKtProxyableProcessor : AbstractProcessor() {
 
             else -> {
 
-                val dataClassName = (element.getAnnotation(ParameterRecordName::class.java)?.value
+                val dataClassName = (element.getAnnotation(ParametersDataName::class.java)?.value
                     ?: "${element.simpleName}").replaceFirstChar { c -> c.uppercaseChar() } + PARAMS
 
                 val dataClass = buildDataClass(dataClassName, parameters)

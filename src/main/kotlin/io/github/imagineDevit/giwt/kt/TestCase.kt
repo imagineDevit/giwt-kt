@@ -199,7 +199,7 @@ open class TestCase<T : Any?, R : Any?> internal constructor(
                     runBlocking { (this@TestCase.whenFn as WhenFns.WhenSFn<R>).invoke() }
                 }
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             this.result = TestCaseResult.ofErr(e)
         }
 
