@@ -4,6 +4,7 @@ import io.github.imagineDevit.giwt.core.ATestCase
 import io.github.imagineDevit.giwt.core.TestParameters
 import io.github.imagineDevit.giwt.core.report.TestCaseReport.TestReport
 import io.github.imagineDevit.giwt.core.utils.Utils
+import io.github.imagineDevit.giwt.kt.statements.functions.AGCtxFn
 import io.github.imagineDevit.giwt.kt.statements.functions.GCtxFn
 import io.github.imagineDevit.giwt.kt.statements.functions.TCtxFn
 import io.github.imagineDevit.giwt.kt.statements.functions.WCtxFn
@@ -26,6 +27,11 @@ class TestCaseWithContext<T : Any?, R : Any?> internal constructor(
     private val gCtx: TestCaseContext.GCtx<T, R> = TestCaseContext.GCtx()
 
     /**
+     * The andGiven statement context.
+     */
+    private var aGCtx: TestCaseContext.AGCtx<T, R> ? = null
+
+    /**
      * The when statement context.
      */
     private lateinit var wCtx: TestCaseContext.WCtx<T, R>
@@ -35,10 +41,13 @@ class TestCaseWithContext<T : Any?, R : Any?> internal constructor(
      */
     private lateinit var tCtx: TestCaseContext.TCtx<T, R>
 
+
+    private var givenFn: GCtxFn<T, R>? = null
+
     /**
      * The list of given statement functions.
      */
-    private val givenFns: MutableList<GCtxFn<T, R>> = mutableListOf()
+    private val andGivenFns: MutableList<AGCtxFn<T, R>> = mutableListOf()
 
     /**
      * The when statement function.
@@ -56,9 +65,16 @@ class TestCaseWithContext<T : Any?, R : Any?> internal constructor(
     override fun run() {
         print(Utils.reportTestCase(name, givenMsgs, whenMsgs, thenMsgs, parameters))
 
-        this.givenFns.forEach { it(this.gCtx) }
+        this.givenFn?.let {
+            it(this.gCtx)
+            this.aGCtx = this.gCtx.toAGCtx()
+        }
 
-        this.wCtx = this.gCtx.toWCtx()
+        this.wCtx = this.aGCtx?.let { ctx ->
+            this.andGivenFns.forEach { it(ctx) }
+            ctx.toWCtx()
+        } ?: this.gCtx.toWCtx()
+
 
         try {
             runBlocking { this@TestCaseWithContext.whenFn(this@TestCaseWithContext.wCtx) }
@@ -84,7 +100,7 @@ class TestCaseWithContext<T : Any?, R : Any?> internal constructor(
      */
     fun given(message: String, givenFn: GCtxFn<T, R>): GivenCtxStmt<T, R> = runIfOpen {
         this.addGivenMsg(message)
-        this.givenFns.add(givenFn)
+        this.givenFn = givenFn
         GivenCtxStmt(this)
     }
 
@@ -123,9 +139,9 @@ class TestCaseWithContext<T : Any?, R : Any?> internal constructor(
          * @param message The message of the given statement.
          * @param fn The given function.
          */
-        fun and(message: String, fn: GCtxFn<T, R>): GivenCtxStmt<T, R> {
+        fun and(message: String, fn: AGCtxFn<T, R>): GivenCtxStmt<T, R> {
             this.testCase.addAndGivenMsg(message)
-            this.testCase.givenFns.add(fn)
+            this.testCase.andGivenFns.add(fn)
             return this
         }
 

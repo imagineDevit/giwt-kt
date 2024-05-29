@@ -94,21 +94,40 @@ sealed class TestCaseContext<T, R> private constructor(context: MutableMap<Strin
             this.context[STATE] = TestCaseCtxState.of(state)
         }
 
-        /**
-         * Maps the state of the test case into a new value.
-         * @param fn The function to map the state.
-         */
-        @Suppress("UNCHECKED_CAST")
-        fun mapState(fn: (T) -> T) {
-            this.context.computeIfPresent(STATE) { _, v -> (v as TestCaseCtxState<T>).map(fn) }
-        }
 
+        /**
+         * Convert the context to a [AGCtx] context.
+         */
+        internal fun toAGCtx(): AGCtx<T, R> {
+            return AGCtx(this.context)
+        }
 
         /**
          * Convert the context to a [WCtx] context.
          */
         internal fun toWCtx(): WCtx<T, R> {
             return WCtx(this.context)
+        }
+    }
+
+    /**
+     * Given statement context
+     */
+    class AGCtx<T : Any?, R : Any?>(ctx: MutableMap<String, Any> = HashMap()) : TestCaseContext<T, R>(ctx) {
+
+        /**
+         * Convert the context to a [WCtx] context.
+         */
+        internal fun toWCtx(): WCtx<T, R> {
+            return WCtx(this.context)
+        }
+
+        /**
+         * Apply a function on the test case state.
+         * @param fn The function to apply on the state.
+         */
+        fun applyOnState(fn: (T) -> Unit) {
+            fn(getState().value())
         }
     }
 
@@ -181,14 +200,14 @@ sealed class TestCaseContext<T, R> private constructor(context: MutableMap<Strin
          * result { shouldBe  equalTo 2 }
          * ```
          */
-        fun result(fn: TestCaseResult<R>.() -> Unit) {
-            fn(getResult())
-        }
+
+        val result
+            get() = this.result()
 
         /**
          * Get the test case result from the context store.
          */
-        private fun getResult(): TestCaseResult<R> {
+        private fun result(): TestCaseResult<R> {
             return safeGetVar<TestCaseCtxResult<R>>(RESULT)?.result() ?: TestCaseResult.empty()
         }
 

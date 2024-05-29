@@ -22,12 +22,6 @@ open class TestCaseState<T> protected constructor(value: T?) : ATestCaseState<T>
     }
 
     /**
-     * Maps the value of the test case state to a new value.
-     * @param mapper The mapper function.
-     */
-    internal fun map(mapper: (T) -> T): TestCaseState<T> = TestCaseState(mapper(value))
-
-    /**
      * Convert the test case state to a test case result.
      * @param mapper The mapper function that map the state value to the result value.
      * @param R The type of the result value.

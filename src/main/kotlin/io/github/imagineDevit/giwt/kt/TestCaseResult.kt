@@ -1,23 +1,22 @@
 package io.github.imagineDevit.giwt.kt
 
 import io.github.imagineDevit.giwt.core.ATestCaseResult
-import io.github.imagineDevit.giwt.kt.assertions.*
+import io.github.imagineDevit.giwt.core.utils.MutVal
+import io.github.imagineDevit.giwt.kt.expectations.KExpectable
 
 /**
  * The result of a test case.
  * @param T The type of the result value.
  */
 @Suppress("UNUSED")
-open class TestCaseResult<T> : Assertable<T>, ATestCaseResult<T> {
+open class TestCaseResult<T> : KExpectable<T>, ATestCaseResult<T> {
 
-    override var sf: ShouldFail? = null
-    override var sb: ShouldBe<T>? = null
-    override var sh: ShouldHave<T>? = null
-    override var sm: ShouldMatch<T>? = null
+    private val rValue = MutVal<T>()
+    private val rError = MutVal<Throwable>()
 
     protected constructor(value: T?) : super(value)
 
-    protected constructor(e: Exception) : super(e)
+    protected constructor(e: Throwable) : super(e)
 
     companion object {
 
@@ -29,19 +28,13 @@ open class TestCaseResult<T> : Assertable<T>, ATestCaseResult<T> {
         /**
          * Creates a new [TestCaseResult] with a given exception.
          */
-        internal fun <T> ofErr(e: Exception): TestCaseResult<T> = TestCaseResult(e)
+        internal fun <T> ofErr(e: Throwable): TestCaseResult<T> = TestCaseResult(e)
 
         /**
          * Creates a new [TestCaseResult] with a null value.
          */
         internal fun <T> empty(): TestCaseResult<T> = TestCaseResult(null)
     }
-
-    /**
-     * @return The value of the result.
-     * @see Assertable.value()
-     */
-    override fun value(): ResultValue = this.value
 
     /**
      * Maps the value of the result to a new type.
@@ -55,15 +48,17 @@ open class TestCaseResult<T> : Assertable<T>, ATestCaseResult<T> {
             .orElseThrow { error("Result is Failure") }
     }
 
-    /**
-     * An utility function that allow to write a dsl-like code to assert the result.
-     *
-     * Example:
-     * ```
-     * result { shouldBe  equalTo 2 }
-     * ```
-     */
-    fun result(fn: TestCaseResult<T>.() -> Unit) {
-        this.fn()
+
+
+    override fun resultValue(): T = rValue.getOr {
+        (value ?: error("Result value is null")).ok<T>()
+            .orElseThrow { error("Result is Failure") }
+            .value
+    }
+
+    override fun resultError(): Throwable = rError.getOr {
+        (value ?: error("Result value is null")).err<Throwable>()
+            .orElseThrow { error("Result is Ok") }
+            .error
     }
 }
