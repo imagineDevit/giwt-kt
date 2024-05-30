@@ -13,7 +13,8 @@ data class OnFailureChain<E : Expectation.OnFailure>(val error: Throwable) : Exp
     }
 }
 
-data class OnValueChain<T, E : Expectation.OnValue<T>>(val value: T, val expectable: KExpectable<T>) : OnValue<T, E>(value) {
+data class OnValueChain<T, E : Expectation.OnValue<T>>(val value: T, val expectable: KExpectable<T>) :
+    OnValue<T, E>(value) {
 
     override infix fun and(expectation: E): OnValueChain<T, E> {
         expectation.doVerify(value)

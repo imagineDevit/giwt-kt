@@ -40,7 +40,7 @@ fun <T> all(matchings: Array<Matching<T>>): ExpectedToMatch<T> = ExpectedToMatch
 fun <T> none(matchings: Array<Matching<T>>): ExpectedToMatch<T> = ExpectedToMatch.None(matchings.toList())
 
 // ToFail
-fun <E: Throwable> withType(type: KClass<E>): ExpectedToFail.WihType = ExpectedToFail.WihType(type.java)
+fun <E : Throwable> withType(type: KClass<E>): ExpectedToFail.WihType = ExpectedToFail.WihType(type.java)
 
 fun withMessage(message: String): ExpectedToFail = ExpectedToFail.WithMessage(message)
 

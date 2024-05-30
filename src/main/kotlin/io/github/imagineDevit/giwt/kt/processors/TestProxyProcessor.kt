@@ -3,6 +3,9 @@ package io.github.imagineDevit.giwt.kt.processors
 
 import com.squareup.kotlinpoet.*
 import io.github.imagineDevit.giwt.core.annotations.ParametersDataName
+import io.github.imagineDevit.giwt.kt.italic
+import io.github.imagineDevit.giwt.kt.italicBlue
+import io.github.imagineDevit.giwt.kt.typeName
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.*
@@ -31,6 +34,8 @@ class TestProxyProcessor : AbstractProcessor() {
     private lateinit var messager: Messager
     private lateinit var elementUtils: Elements
 
+    private var dataClassesNames = mutableListOf<String>()
+
     override fun init(processingEnv: ProcessingEnvironment) {
         super.init(processingEnv)
         messager = processingEnv.messager
@@ -46,6 +51,9 @@ class TestProxyProcessor : AbstractProcessor() {
 
     @OptIn(DelicateKotlinPoetApi::class)
     private fun buildFile(element: Element) {
+
+        dataClassesNames.clear()
+
         val packageName = elementUtils.getPackageOf(element).toString()
         val delegateName = element.simpleName
         val fileName = "$delegateName$TESTER"
@@ -92,10 +100,10 @@ class TestProxyProcessor : AbstractProcessor() {
             .writeTo(processingEnv.filer)
     }
 
-    @OptIn(DelicateKotlinPoetApi::class)
     private fun buildFunc(classBuilder: TypeSpec.Builder, element: ExecutableElement): FunSpec {
 
-        val builder = FunSpec.builder(element.simpleName.toString())
+        val elementName = element.simpleName.toString()
+        val builder = FunSpec.builder(elementName)
 
         // Check if the function is a suspend function
         val isSuspend: (VariableElement) -> Boolean = { it.simpleName.toString() == COMPLETION }
@@ -105,7 +113,7 @@ class TestProxyProcessor : AbstractProcessor() {
         // Add suspend modifier if the function has a suspend parameter
         val isSuspended = continuationParam != null
 
-        var returnType = element.returnType.asTypeName()
+        var returnType = element.returnType.typeName()
 
         if (isSuspended) {
             builder.addModifiers(KModifier.SUSPEND)
@@ -122,7 +130,7 @@ class TestProxyProcessor : AbstractProcessor() {
             }
 
             parameters.size == 1 -> {
-                builder.addParameter(parameters[0].simpleName.toString(), parameters[0].asType().asTypeName())
+                builder.addParameter(parameters[0].simpleName.toString(), parameters[0].asType().typeName())
                 builder.addStatement("return this.${DELEGATE}.${element.simpleName}(${parameters[0].simpleName})")
             }
 
@@ -130,6 +138,17 @@ class TestProxyProcessor : AbstractProcessor() {
 
                 val dataClassName = (element.getAnnotation(ParametersDataName::class.java)?.value
                     ?: "${element.simpleName}").replaceFirstChar { c -> c.uppercaseChar() } + PARAMS
+
+                if (dataClassesNames.contains(dataClassName)) {
+                    throw IllegalArgumentException(
+                        """
+                        Cannot generate ${"parameters data class".italic()} with an already used name ${dataClassName.italicBlue()} for the overloaded method ${elementName.italicBlue()}.    
+                        Please consider to use the ${"@ParametersDataName".italicBlue()} annotation on the overloaded method to specify a different name for ${"the generated parameters data class".italic()}.
+                    """.trimIndent()
+                    )
+                } else {
+                    dataClassesNames.add(dataClassName)
+                }
 
                 val dataClass = buildDataClass(dataClassName, parameters)
 
@@ -153,9 +172,8 @@ class TestProxyProcessor : AbstractProcessor() {
             .build()
     }
 
-    @OptIn(DelicateKotlinPoetApi::class)
     private fun buildDataClass(name: String, parameters: List<VariableElement>): TypeSpec =
-       TypeSpec
+        TypeSpec
             .classBuilder(name)
             .addModifiers(KModifier.DATA)
             .primaryConstructor(
@@ -164,7 +182,7 @@ class TestProxyProcessor : AbstractProcessor() {
                         parameters.map {
                             ParameterSpec.builder(
                                 it.simpleName.toString(),
-                                it.asType().asTypeName()
+                                it.asType().typeName()
                             ).build()
                         }
                     )
@@ -174,11 +192,12 @@ class TestProxyProcessor : AbstractProcessor() {
                 parameters.map {
                     PropertySpec.builder(
                         it.simpleName.toString(),
-                        it.asType().asTypeName()
+                        it.asType().typeName()
                     )
                         .initializer(it.simpleName.toString())
                         .addModifiers(KModifier.PUBLIC)
                         .build()
                 }
             ).build()
+
 }
