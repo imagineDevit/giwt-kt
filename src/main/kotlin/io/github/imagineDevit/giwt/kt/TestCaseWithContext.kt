@@ -29,7 +29,7 @@ class TestCaseWithContext<T : Any?, R : Any?> internal constructor(
     /**
      * The andGiven statement context.
      */
-    private var aGCtx: TestCaseContext.AGCtx<T, R> ? = null
+    private var aGCtx: TestCaseContext.AGCtx<T, R>? = null
 
     /**
      * The when statement context.

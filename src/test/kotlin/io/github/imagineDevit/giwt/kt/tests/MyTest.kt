@@ -7,7 +7,6 @@ import io.github.imagineDevit.giwt.core.annotations.*
 import io.github.imagineDevit.giwt.kt.TestCase
 import io.github.imagineDevit.giwt.kt.expectations.*
 import kotlinx.coroutines.coroutineScope
-import java.lang.annotation.Inherited
 
 
 @ExtendWith(MyTestExtension::class)
@@ -77,7 +76,7 @@ class MyTest {
             }
             .`when`("result is set to state + 1") { mapToResult { one -> one + 1 } }
             .then("the result should be 3") {
-                result shouldBe notNull() and  equalTo(2)
+                result shouldBe notNull() and equalTo(2)
             }
     }
 
@@ -90,9 +89,9 @@ class MyTest {
                 setStateAsResult()
             }
             .then("the result should be not null") { result shouldBe notNull() }
-            .and("the result should have a size equal to 1") { result  shouldHave size(1)  }
+            .and("the result should have a size equal to 1") { result shouldHave size(1) }
             .and("the result should contain an item equal to 'element'") {
-                result shouldMatch one( matching("element") { it.contains( "element") })
+                result shouldMatch one(matching("element") { it.contains("element") })
             }
     }
 

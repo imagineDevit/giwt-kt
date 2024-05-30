@@ -49,7 +49,6 @@ open class TestCaseResult<T> : KExpectable<T>, ATestCaseResult<T> {
     }
 
 
-
     override fun resultValue(): T = rValue.getOr {
         (value ?: error("Result value is null")).ok<T>()
             .orElseThrow { error("Result is Failure") }
