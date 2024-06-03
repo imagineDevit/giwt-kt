@@ -6,7 +6,7 @@
 
     <groupId>io.github.imagineDevit</groupId>
     <artifactId>giwt-kt</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2-SNAPSHOT</version>
 
     <description>
         A JUnit based library that allow developers to write unit test on GIVEN-WHEN-THEN format
@@ -16,7 +16,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
-        <giwt.core.version>0.0.8</giwt.core.version>
+        <giwt.core.version>0.0.9</giwt.core.version>
     </properties>
 
     <name>giwt-kt</name>
@@ -201,12 +201,6 @@
             <artifactId>kotlinx-coroutines-core</artifactId>
             <version>1.6.4</version>
         </dependency>
-        <dependency>
-            <groupId>com.squareup</groupId>
-            <artifactId>kotlinpoet-jvm</artifactId>
-            <version>1.16.0</version>
-        </dependency>
-
     </dependencies>
 
     <profiles>

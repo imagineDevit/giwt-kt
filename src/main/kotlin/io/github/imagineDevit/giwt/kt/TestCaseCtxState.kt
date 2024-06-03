@@ -1,6 +1,7 @@
 package io.github.imagineDevit.giwt.kt
 
 import io.github.imagineDevit.giwt.core.ATestCaseState
+import java.util.*
 
 /**
  * The state of a [TestCaseWithContext].
@@ -26,29 +27,19 @@ class TestCaseCtxState<T> private constructor(value: T?) : ATestCaseState<T>(val
     }
 
     /**
-     * Maps the value of the state into a new value.
-     * @param mapper The mapper function.
-     * @return The new state.
-     */
-    fun map(mapper: (T) -> T): TestCaseCtxState<T> = TestCaseCtxState(mapper(value))
-
-    /**
-     * Maps the value of the state value to the result.
-     * @param mapper The mapper function.
-     * @return The result of the mapping wrapped into a [TestCaseCtxResult].
-     */
-    fun <R> toResult(fn: (T) -> R): TestCaseCtxResult<R> {
-        return try {
-            value?.let { TestCaseCtxResult.of(fn(it)) } ?: TestCaseCtxResult.empty()
-        } catch (e: Exception) {
-            TestCaseCtxResult.ofErr(e)
-        }
-    }
-
-    /**
      * Gets the value of the state.
      */
     fun value(): T {
         return value
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        return Objects.equals(value, (other as TestCaseCtxState<*>).value)
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hashCode(value)
     }
 }

@@ -70,7 +70,7 @@ sealed class TestCaseContext<T, R> private constructor(context: MutableMap<Strin
      * If the state is not set, an empty [TestCaseCtxState] is returned.
      * @return The state of the test case.
      */
-    protected fun getState(): TestCaseCtxState<T> {
+    internal fun getState(): TestCaseCtxState<T> {
         return this.context[STATE]?.let { (it as TestCaseCtxState<T>) } ?: TestCaseCtxState.empty()
     }
 
@@ -90,10 +90,9 @@ sealed class TestCaseContext<T, R> private constructor(context: MutableMap<Strin
          * Sets the state of the test case.
          * @param state The value of the test case state.
          */
-        fun setState(state: T) {
+        internal fun setState(state: T) {
             this.context[STATE] = TestCaseCtxState.of(state)
         }
-
 
         /**
          * Convert the context to a [AGCtx] context.
@@ -144,33 +143,6 @@ sealed class TestCaseContext<T, R> private constructor(context: MutableMap<Strin
         }
 
         /**
-         * Map the test case state to result.
-         * @param mapper The function to map the state to the result.
-         */
-        fun mapToResult(mapper: (T) -> R) = setResult(getState().toResult(mapper))
-
-        /**
-         * Apply a function on the test case state.
-         * @param fn The function to apply on the state.
-         */
-        fun applyOnState(fn: (T) -> Unit) {
-            fn(getState().value())
-        }
-
-        /**
-         * Set the state as the result.
-         *
-         * @throws ClassCastException If the state is not of the result type.
-         */
-        fun setStateAsResult() = setResult(getState().toResult { it as R })
-
-        /**
-         * Supply the result of the test case.
-         * @param supplier The supplier of the result.
-         */
-        fun supplyResult(supplier: () -> R) = setResult(TestCaseCtxResult.of(supplier()))
-
-        /**
          * Convert the context to a [TCtx] context.
          */
         internal fun toTCtx(): TCtx<T, R> {
@@ -201,13 +173,10 @@ sealed class TestCaseContext<T, R> private constructor(context: MutableMap<Strin
          * ```
          */
 
-        val result
-            get() = this.result()
-
         /**
          * Get the test case result from the context store.
          */
-        private fun result(): TestCaseResult<R> {
+        internal fun result(): TestCaseResult<R> {
             return safeGetVar<TestCaseCtxResult<R>>(RESULT)?.result() ?: TestCaseResult.empty()
         }
 
