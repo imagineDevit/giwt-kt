@@ -190,22 +190,23 @@ open class TestCase<T : Any?, R : Any?> internal constructor(
         }
 
         try {
-            when (this.whenFn) {
-                is WhenFns.WhenFn<*, *> -> this.result = this@TestCase.state.mapToResult { s ->
-                    runBlocking { (this@TestCase.whenFn as WhenFns.WhenFn<T, R>).invoke(s) }
+            this.result = runBlocking {
+                with(this@TestCase.whenFn) {
+                    when (this) {
+                        is WhenFns.WhenFn<*, *> -> (this as WhenFns.WhenFn<T, R>).invoke(this@TestCase.state.value())
+                        is WhenFns.WhenSFn<*> -> (this as WhenFns.WhenSFn<R>).invoke()
+                    }
                 }
-
-                is WhenFns.WhenSFn<*> -> this.result = this.state.mapToResult { _ ->
-                    runBlocking { (this@TestCase.whenFn as WhenFns.WhenSFn<R>).invoke() }
-                }
-            }
+            }.let { TestCaseResult.of(it) }
         } catch (e: Throwable) {
             this.result = TestCaseResult.ofErr(e)
         }
 
 
+        print(Utils.listExpectations())
         this.thenFns.forEach { fn ->
             fn.invoke(this.result)
         }
+        println()
     }
 }

@@ -33,29 +33,14 @@ fun <T, R> anItemEqualTo(element: R): ExpectedToHave<T> = ExpectedToHave.AnItemE
 
 // ToMatch
 
-fun <T> one(matching: Matching<T>): ExpectedToMatch<T> = ExpectedToMatch.One(matching)
+fun <T> one(description: String, predicate: Predicate<T>): ExpectedToMatch<T> =
+    ExpectedToMatch.One(Matching(description, predicate))
 
-fun <T> all(matchings: Array<Matching<T>>): ExpectedToMatch<T> = ExpectedToMatch.All(matchings.toList())
+fun <T> all(matchings: Map<String, Predicate<T>>): ExpectedToMatch<T> = ExpectedToMatch.All(matchings.map { Matching(it.key, it.value) })
 
-fun <T> none(matchings: Array<Matching<T>>): ExpectedToMatch<T> = ExpectedToMatch.None(matchings.toList())
+fun <T> none(matchings: Map<String, Predicate<T>>): ExpectedToMatch<T> = ExpectedToMatch.None(matchings.map { Matching(it.key, it.value) })
 
 // ToFail
 fun <E : Throwable> withType(type: KClass<E>): ExpectedToFail.WihType = ExpectedToFail.WihType(type.java)
 
 fun withMessage(message: String): ExpectedToFail = ExpectedToFail.WithMessage(message)
-
-
-// Matching
-
-/**
- * Creates a Matching object from a description and a predicate.
- * @param description The description of the predicate.
- * @param predicate The matching predicate.
- */
-fun <T> matching(description: String, predicate: Predicate<T>): Matching<T> = Matching(description, predicate)
-
-/**
- * Creates an array of Matching objects from a list of pairs.
- */
-fun <T> matchings(vararg pairs: Pair<String, (T) -> Boolean>): Array<Matching<T>> =
-    pairs.map { ExpectedToMatch.matching(it.first, it.second) }.toTypedArray()

@@ -4,10 +4,7 @@ import io.github.imagineDevit.giwt.core.ATestCase
 import io.github.imagineDevit.giwt.core.TestParameters
 import io.github.imagineDevit.giwt.core.report.TestCaseReport.TestReport
 import io.github.imagineDevit.giwt.core.utils.Utils
-import io.github.imagineDevit.giwt.kt.statements.functions.AGCtxFn
-import io.github.imagineDevit.giwt.kt.statements.functions.GCtxFn
-import io.github.imagineDevit.giwt.kt.statements.functions.TCtxFn
-import io.github.imagineDevit.giwt.kt.statements.functions.WCtxFn
+import io.github.imagineDevit.giwt.kt.statements.functions.*
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -52,7 +49,8 @@ class TestCaseWithContext<T : Any?, R : Any?> internal constructor(
     /**
      * The when statement function.
      */
-    private lateinit var whenFn: WCtxFn<T, R>
+    private var whenFn: WCtxFFn<T, R>? = null
+    private var whenSFn: WCtxSFn<T, R>? = null
 
     /**
      * The list of then statement functions.
@@ -66,25 +64,29 @@ class TestCaseWithContext<T : Any?, R : Any?> internal constructor(
         print(Utils.reportTestCase(name, givenMsgs, whenMsgs, thenMsgs, parameters))
 
         this.givenFn?.let {
-            it(this.gCtx)
+            this.gCtx.setState(it(this.gCtx))
             this.aGCtx = this.gCtx.toAGCtx()
         }
 
         this.wCtx = this.aGCtx?.let { ctx ->
-            this.andGivenFns.forEach { it(ctx) }
+            this.andGivenFns.forEach { it(ctx, ctx.getState().value()) }
             ctx.toWCtx()
         } ?: this.gCtx.toWCtx()
 
-
         try {
-            runBlocking { this@TestCaseWithContext.whenFn(this@TestCaseWithContext.wCtx) }
-        } catch (e: Exception) {
+            runBlocking {
+                (whenFn?.invoke(wCtx, wCtx.getState().value()) ?: whenSFn?.invoke(wCtx))
+                    ?.let { wCtx.setResult(TestCaseCtxResult.of(it)) }
+            }
+        } catch (e: Throwable) {
             this.wCtx.setResult(TestCaseCtxResult.ofErr(e))
         }
 
         this.tCtx = this.wCtx.toTCtx()
 
-        this.thenFns.forEach { it(this.tCtx) }
+        print(Utils.listExpectations())
+        this.thenFns.forEach { it(this.tCtx, this.tCtx.result()) }
+        println()
     }
 
     /**
@@ -121,9 +123,9 @@ class TestCaseWithContext<T : Any?, R : Any?> internal constructor(
      * @param message The message of the when statement.
      * @param whenFn The when function that supplies the test case result.
      */
-    fun `when`(message: String, whenFn: WCtxFn<T, R>): WhenCtxStmt<T, R> = runIfOpen {
+    fun `when`(message: String, whenFn: WCtxSFn<T, R>): WhenCtxStmt<T, R> = runIfOpen {
         this.addWhenMsg(message)
-        this.whenFn = whenFn
+        this.whenSFn = whenFn
         WhenCtxStmt(this)
     }
 
@@ -151,7 +153,7 @@ class TestCaseWithContext<T : Any?, R : Any?> internal constructor(
          * @param message The message of the when statement.
          * @param whenFn The when function that supplies the test case result.
          */
-        fun `when`(message: String, whenFn: WCtxFn<T, R>): WhenCtxStmt<T, R> {
+        fun `when`(message: String, whenFn: WCtxFFn<T, R>): WhenCtxStmt<T, R> {
             this.testCase.addWhenMsg(message)
             this.testCase.whenFn = whenFn
             return WhenCtxStmt(this.testCase)

@@ -1,6 +1,7 @@
 package io.github.imagineDevit.giwt.kt
 
 import io.github.imagineDevit.giwt.core.ATestCaseState
+import java.util.*
 
 /**
  * The state of a test case.
@@ -22,18 +23,25 @@ open class TestCaseState<T> protected constructor(value: T?) : ATestCaseState<T>
     }
 
     /**
-     * Convert the test case state to a test case result.
-     * @param mapper The mapper function that map the state value to the result value.
-     * @param R The type of the result value.
-     */
-    internal fun <R> mapToResult(mapper: (T) -> R): TestCaseResult<R> = TestCaseResult.of(mapper(value))
-
-    /**
      * Apply a function to the value of the test case state.
      * @param fn The function to apply.
      */
     internal fun consumeValue(fn: (T) -> Unit) {
         super.consumeValue(fn)
+    }
+
+    internal fun value(): T {
+        return value
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        return Objects.equals(value, (other as TestCaseState<*>).value)
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hashCode(value)
     }
 
 }

@@ -8,7 +8,6 @@ import io.github.imagineDevit.giwt.kt.TestCase
 import io.github.imagineDevit.giwt.kt.expectations.*
 import kotlinx.coroutines.coroutineScope
 
-
 @ExtendWith(MyTestExtension::class)
 @ConfigureWith(MyTestConfiguration::class)
 class MyTest {
@@ -23,8 +22,25 @@ class MyTest {
             .and("state is multiplied by 2") { it * 2 }
             .`when`("1 is added to the state") { byTwoPlusOne(it) }
             .then("result should be not null") {
-                result shouldBe notNull() and equalTo(3)
+                it shouldBe notNull() and equalTo(3)
             }
+    }
+
+    @Test("(1 * 2) + 1 should be null")
+    fun test1b(testCase: TestCase<Int, Int?>) {
+        testCase
+            .given("state is 1", 1)
+            .and("state is multiplied by 2") { it * 2 }
+            .`when`("1 is added to the state") { null }
+            .then("result should be not null") { it shouldBe `null`() }
+    }
+
+    @Test("(null * 2) + 1 should be null")
+    fun test1c(testCase: TestCase<Int?, Int?>) {
+        testCase.withContext()
+            .given("state set at null", null)
+            .`when`("1 is added to the state") { it?.let { byTwoPlusOne(it) } }
+            .then("result should be not null") { it shouldBe `null`() }
 
     }
 
@@ -37,9 +53,7 @@ class MyTest {
             .given("state is 1") { 1 }
             .and("state is multiplied by 2") { it * 2 }
             .`when`("$number is added to the state") { byTwoPlus(it, number) }
-            .then("result should be not null") {
-                result shouldBe notNull() and equalTo(expected)
-            }
+            .then("result should be not null") { it shouldBe notNull() and equalTo(expected) }
 
     }
 
@@ -49,35 +63,25 @@ class MyTest {
         testCase
             .given("nothing") {}
             .`when`("called method return 1") { 1 }
-            .then("the result should be not null") {
-                result shouldBe notNull() and equalTo(1)
-            }
+            .then("the result should be not null") { it shouldBe notNull() and equalTo(1) }
     }
 
     @Test("An illegalState exception should be thrown")
     fun test4(testCase: TestCase<Unit, Unit>) {
         testCase
-            .`when`("called method throw an exception with oups message") {
-                error("Oups")
-            }
+            .`when`("called method throw an exception with oups message") { error("Oups") }
             .then("the exception is not null") {
-                result shouldFail withType(IllegalStateException::class) and withMessage("Oups")
+                it shouldFail withType(IllegalStateException::class) and withMessage("Oups")
             }
     }
 
     @Test("test case with context")
     fun test5(testCase: TestCase<Int, Int>) {
         testCase.withContext()
-            .given("the state is set to 1") { setState(1) }
-            .and("the state is multiplied by 2") {
-                applyOnState {
-                    setVar("one", it)
-                }
-            }
-            .`when`("result is set to state + 1") { mapToResult { one -> one + 1 } }
-            .then("the result should be 3") {
-                result shouldBe notNull() and equalTo(2)
-            }
+            .given("the state is set to 1") { 1 }
+            .and("the state is multiplied by 2") { setVar("one", it) }
+            .`when`("result is set to state + 1") { it + 1 }
+            .then("the result should be 3") { it shouldBe notNull() and equalTo(2) }
     }
 
     @Test("Add element to an empty collection")
@@ -85,23 +89,23 @@ class MyTest {
         testCase.withContext()
             .given("an empty list", mutableListOf())
             .`when`("an element is added to the list") {
-                applyOnState { list -> list.add("element") }
-                setStateAsResult()
+                it.add("element")
+                it
             }
-            .then("the result should be not null") { result shouldBe notNull() }
-            .and("the result should have a size equal to 1") { result shouldHave size(1) }
+            .then("the result should be not null") { it shouldBe notNull() }
+            .and("the result should have a size equal to 1") { it shouldHave size(1) }
             .and("the result should contain an item equal to 'element'") {
-                result shouldMatch one(matching("element") { it.contains("element") })
+                it shouldMatch one("element") { list -> list.contains("element") }
             }
     }
 
     @Test("ctx An illegalState exception should be thrown")
-    fun test7(testCase: TestCase<Void?, Void?>) {
+    fun test7(testCase: TestCase<Unit, Unit>) {
         testCase
             .withContext()
             .`when`("called method throw an exception with oups message") { error("Oups") }
             .then("the exception is not null") {
-                result shouldFail withType(IllegalStateException::class) and withMessage("Oups")
+                it shouldFail withType(IllegalStateException::class) and withMessage("Oups")
             }
     }
 
