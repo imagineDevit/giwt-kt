@@ -1,6 +1,7 @@
 package io.github.imagineDevit.giwt.kt
 
 import io.github.imagineDevit.giwt.core.ATestCaseResult
+import io.github.imagineDevit.giwt.core.errors.ResultValueError
 import io.github.imagineDevit.giwt.core.utils.MutVal
 import io.github.imagineDevit.giwt.kt.expectations.KExpectable
 import java.util.*
@@ -45,18 +46,18 @@ open class TestCaseResult<R> : KExpectable<R>, ATestCaseResult<R> {
     fun <S> map(mapper: (R) -> S): TestCaseResult<S> {
         return value.ok<R>()
             .map { of(mapper(it.value)) }
-            .orElseThrow { error("Result is Failure") }
+            .orElseThrow { ResultValueError.ExpectedValueFailed() }
     }
 
     override fun resultValue(): R = rValue.getOr {
         (value ?: error("Result value is null")).ok<R>()
-            .orElseThrow { error("Result is Failure") }
+            .orElseThrow { ResultValueError.ExpectedValueFailed() }
             .value
     }
 
     override fun resultError(): Throwable = rError.getOr {
         (value ?: error("Result value is null")).err<Throwable>()
-            .orElseThrow { error("Result is Success") }
+            .orElseThrow { ResultValueError.ExpectedErrorFailed() }
             .error
     }
 

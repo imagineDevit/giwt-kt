@@ -1,7 +1,7 @@
 package io.github.imagineDevit.giwt.kt
 
 import io.github.imagineDevit.giwt.core.annotations.Test
-import io.github.imagineDevit.giwt.core.expectations.ExpectedToFail
+import io.github.imagineDevit.giwt.core.errors.ResultValueError.*
 import io.github.imagineDevit.giwt.kt.expectations.*
 
 
@@ -65,10 +65,8 @@ class TestCaseResultTest {
         tc
             .given(" a TestCaseResult with a error ", TestCaseResult.ofErr(Exception()))
             .`when`("the value of the TestCaseResult is mapped to a string") { it.map { v -> "$v" } }
-            .then("the TestCaseResult should fail") { result ->
-                result
-                    .shouldFail(ExpectedToFail.withType(IllegalStateException::class.java))
-                    .and(ExpectedToFail.withMessage("Result is Failure"))
+            .then("the TestCaseResult should fail") {
+                it shouldFail withType(ExpectedValueFailed::class) and withMessage(EXPECTED_VALUE_FAILED)
             }
     }
 
@@ -88,8 +86,8 @@ class TestCaseResultTest {
         tc
             .given(" a TestCaseResult with an exception", TestCaseResult.ofErr(Exception()))
             .`when`("the value of the TestCaseResult is retrieved") { it.resultValue() }
-            .then("the value should fail") { value ->
-                value shouldFail withType(IllegalStateException::class) and withMessage("Result is Failure")
+            .then("the value should fail") {
+                it shouldFail withType(ExpectedValueFailed::class) and withMessage(EXPECTED_VALUE_FAILED)
             }
     }
 
@@ -109,7 +107,7 @@ class TestCaseResultTest {
             .given(" a TestCaseResult with a value", TestCaseResult.of(1))
             .`when`("the value of the TestCaseResult is retrieved") { it.resultError() }
             .then("the value should fail") {
-                it shouldFail withType(IllegalStateException::class) and withMessage("Result is Success")
+                it shouldFail withType(ExpectedErrorFailed::class) and withMessage(EXPECTED_ERROR_FAILED)
             }
     }
 }
