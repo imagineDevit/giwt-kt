@@ -65,8 +65,9 @@ class TestCaseWithContext<T : Any?, R : Any?> internal constructor(
 
         this.givenFn?.let {
             this.gCtx.setState(it(this.gCtx))
-            this.aGCtx = this.gCtx.toAGCtx()
         }
+
+        this.aGCtx = this.gCtx.toAGCtx()
 
         this.wCtx = this.aGCtx?.let { ctx ->
             this.andGivenFns.forEach { it(ctx, ctx.getState().value()) }

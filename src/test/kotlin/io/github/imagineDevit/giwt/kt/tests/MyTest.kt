@@ -78,10 +78,15 @@ class MyTest {
     @Test("test case with context")
     fun test5(testCase: TestCase<Int, Int>) {
         testCase.withContext()
-            .given("the state is set to 1") { 1 }
-            .and("the state is multiplied by 2") { setVar("one", it) }
-            .`when`("result is set to state + 1") { it + 1 }
-            .then("the result should be 3") { it shouldBe notNull() and equalTo(2) }
+            .given("the state is set to 1"){
+                setVar("one", 3)
+                1
+            }
+            .and("the state is multiplied by 2") { setVar("two", it) }
+            .`when`("result is set to state + 1") {
+                it + getVar<Int>("two")!! + getVar<Int>("one")!!
+            }
+            .then("the result should be 3") { it shouldBe notNull() and equalTo(5) }
     }
 
     @Test("Add element to an empty collection")
@@ -109,6 +114,18 @@ class MyTest {
             }
     }
 
+
+    @ParameterizedTest(
+        name = "sum of {0} should be {1}",
+        source = "getParams2"
+    )
+    fun test8(testCase: TestCase<List<Int>, Int>, numbers: List<Int>, expected: Int) {
+        testCase
+            .given("state is $numbers") { numbers }
+            .`when`("sum ") { it.sum() }
+            .then("result should be not null") { it shouldBe notNull() and equalTo(expected) }
+
+    }
     companion object {
         @ParameterSource
         @JvmStatic
@@ -116,6 +133,14 @@ class MyTest {
             Parameter.P2.of(1, 3),
             Parameter.P2.of(2, 4),
             Parameter.P2.of(4, 6)
+        )
+
+        @ParameterSource
+        @JvmStatic
+        fun getParams2(): TestParameters<Parameter.P2<List<Int>, Int>> = TestParameters.of(
+            Parameter.P2.of(listOf(1,2), 3),
+            Parameter.P2.of(listOf(1,1,2), 4),
+            Parameter.P2.of(listOf(4, 2), 6)
         )
     }
 }
