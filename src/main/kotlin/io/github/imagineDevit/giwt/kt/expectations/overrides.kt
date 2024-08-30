@@ -36,9 +36,9 @@ fun <T, R> anItemEqualTo(element: R): ExpectedToHave<T> = ExpectedToHave.AnItemE
 fun <T> one(description: String, predicate: Predicate<T>): ExpectedToMatch<T> =
     ExpectedToMatch.One(Matching(description, predicate))
 
-fun <T> all(matchings: Map<String, Predicate<T>>): ExpectedToMatch<T> = ExpectedToMatch.All(matchings.map { Matching(it.key, it.value) })
+fun <T> all(matchings: Map<String, (T) -> Boolean>): ExpectedToMatch<T> = ExpectedToMatch.All(matchings.map { Matching(it.key, it.value) })
 
-fun <T> none(matchings: Map<String, Predicate<T>>): ExpectedToMatch<T> = ExpectedToMatch.None(matchings.map { Matching(it.key, it.value) })
+fun <T> none(matchings: Map<String, (T) -> Boolean>): ExpectedToMatch<T> = ExpectedToMatch.None(matchings.map { Matching(it.key, it.value) })
 
 // ToFail
 fun <E : Throwable> withType(type: KClass<E>): ExpectedToFail.WihType = ExpectedToFail.WihType(type.java)
